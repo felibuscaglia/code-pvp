@@ -35,7 +35,11 @@ export function RoomProvider({
   useEffect(() => {
     rooms
       .getById(roomId)
-      .then((res) => setRoom({ ...res.data, players: new Map() }))
+      .then(({ data }) => {
+        setRoom({ ...data, players: new Map(Object.entries(data.players)) });
+        console.log({ data })
+      },
+      )
       .catch((err) => {
         const status = isAxiosError(err) ? (err.response?.status ?? 500) : 500
         setError(new RoomError(err.message, status))

@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { Player } from './interfaces/player.interface';
 import { Room } from './interfaces/room.interface';
+import { RoomStatus } from './enums';
 
 @Injectable()
 export class RoomsService {
@@ -10,7 +11,11 @@ export class RoomsService {
 
   create(dto: CreateRoomDto): string {
     const roomId = randomUUID();
-    this.rooms.set(roomId, { ...dto, players: new Map() });
+    this.rooms.set(roomId, {
+      ...dto,
+      players: new Map(),
+      status: RoomStatus.WAITING,
+    });
     return roomId;
   }
 

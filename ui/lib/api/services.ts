@@ -1,33 +1,7 @@
 import { api } from "./client"
+import type { CreateRoomPayload, Room } from "./interfaces"
 
-export interface CreateRoomPayload {
-  name: string
-  mode: "ffa" | "2v2"
-  rounds: number
-  roundTime: number
-  difficulty: string
-  languages: string[]
-  maxPlayers?: number
-  public: boolean
-}
-
-export interface Room {
-  name: string
-  mode: "ffa" | "2v2"
-  rounds: number
-  roundTime: number
-  difficulty: string
-  languages: string[]
-  maxPlayers?: number
-  public: boolean
-  players: Map<string, Player>
-}
-
-export interface Player {
-  id: string
-  displayName: string
-  avatar: string
-}
+export type { CreateRoomPayload, Room, RoomStatus, Player } from "./interfaces"
 
 export const rooms = {
   create: (payload: CreateRoomPayload) =>

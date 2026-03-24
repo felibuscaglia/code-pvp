@@ -18,6 +18,6 @@ export class RoomsController {
 
     if (!room) throw new NotFoundException('Room not found.');
 
-    return room;
+    return { ...room, players: Object.fromEntries(room.players) };
   }
 }
