@@ -37,11 +37,13 @@ export function JoinRoomModal({ roomId }: JoinRoomModalProps) {
   function handleJoin() {
     if (!canJoin) return
 
+    const avatar = AVATARS.find((a) => a.id === selectedAvatar)!.emoji
+
     socket.connect()
     socket.emit("join-room", {
       roomId,
       displayName: displayName.trim(),
-      avatar: selectedAvatar,
+      avatar,
     })
 
     setOpen(false)

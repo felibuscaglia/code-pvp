@@ -1,3 +1,6 @@
+"use client"
+
+import { useRoom } from "@/lib/contexts/room"
 import {
   Avatar,
   AvatarFallback,
@@ -9,24 +12,22 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-const PLAYERS = [
-  { id: "1", name: "Felipe", initials: "FB" },
-  { id: "2", name: "Alice", initials: "AL" },
-  { id: "3", name: "Bob", initials: "BO" },
-  { id: "4", name: "Charlie", initials: "CH" },
-]
-
 export function RoomPlayers() {
+  const { room } = useRoom()
+  const players = room ? Array.from(room.players.values()) : []
+
+  console.log({ room, players });
+
   return (
     <AvatarGroup>
-      {PLAYERS.map((player) => (
+      {players.map((player) => (
         <Tooltip key={player.id}>
           <TooltipTrigger asChild>
             <Avatar className="transition-transform duration-200 hover:z-10 hover:-translate-y-1 hover:scale-110">
-              <AvatarFallback>{player.initials}</AvatarFallback>
+              <AvatarFallback>{player.avatar}</AvatarFallback>
             </Avatar>
           </TooltipTrigger>
-          <TooltipContent side="bottom">{player.name}</TooltipContent>
+          <TooltipContent side="bottom">{player.displayName}</TooltipContent>
         </Tooltip>
       ))}
     </AvatarGroup>

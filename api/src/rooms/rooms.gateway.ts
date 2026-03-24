@@ -32,8 +32,9 @@ export class RoomsGateway {
 
     client.join(roomId);
 
+    
     client.to(roomId).emit('player-joined', player);
 
-    return { event: 'room-joined', data: { roomId } };
+    return { event: 'room-joined', data: { roomId, player } };
   }
 }

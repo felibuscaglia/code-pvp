@@ -33,6 +33,27 @@ When composing UI, follow shadcn patterns:
 
 Custom wrapper components around shadcn primitives are allowed ONLY when the same app-specific behavior (not just styling) is repeated across multiple places. Keep wrappers thin — they should pass through all original props and add only the repeated logic. If the customization is one-off, apply it inline at the call site instead of creating a wrapper.
 
+### Contexts and Hooks
+
+All React contexts live under `lib/contexts/`. Each context gets its own folder containing two files: one for the context + provider and one for the hook that consumes it.
+
+- The context file exports the `Provider` component and the raw `Context` object.
+- The hook file exports a custom `use<Name>` hook that wraps `useContext` with a guard.
+- An `index.ts` barrel file re-exports the provider and hook for clean imports.
+
+Example structure:
+```
+lib/
+  contexts/
+    room/
+      room-context.tsx        # createContext + RoomProvider
+      use-room.ts             # useRoom hook
+      index.ts                # re-exports RoomProvider and useRoom
+```
+
+- WRONG: Defining the context, provider, and hook all in a single file.
+- WRONG: Placing context files inside `_components/` or `components/ui/`.
+
 ### Component File Organization
 
 - `components/ui/` is reserved exclusively for Shadcn UI primitives (installed via the shadcn CLI). Do NOT place custom feature components here and do NOT manually edit these files.

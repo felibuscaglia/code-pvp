@@ -20,6 +20,13 @@ export interface Room {
   languages: string[]
   maxPlayers?: number
   public: boolean
+  players: Map<string, Player>
+}
+
+export interface Player {
+  id: string
+  displayName: string
+  avatar: string
 }
 
 export const rooms = {
