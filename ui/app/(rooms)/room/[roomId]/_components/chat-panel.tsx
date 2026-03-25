@@ -49,17 +49,21 @@ export function ChatPanel() {
     setMessages((prev) => [...prev, msg])
     setDraft("")
 
-    socket.emit("send-message", {
-      roomId: room!.id,
-      message: text,
-      playerName: player.displayName,
-    }).catch(() => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m === msg ? { ...m, error: true } : m,
-        ),
-      )
-    })
+    socket.timeout(5000).emit(
+      "send-message",
+      {
+        roomId: room!.id,
+        message: text,
+        playerName: player.displayName,
+      },
+      (err: Error | null) => {
+        if (err) {
+          setMessages((prev) =>
+            prev.map((m) => (m === msg ? { ...m, error: true } : m)),
+          )
+        }
+      },
+    )
   }
 
   return (

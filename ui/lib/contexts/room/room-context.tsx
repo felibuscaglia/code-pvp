@@ -72,11 +72,22 @@ export function RoomProvider({
       setPlayer(player)
     }
 
+    function handlePlayerLeft(playerId: string) {
+      setRoom((prev) => {
+        if (!prev) return prev
+        const players = new Map(prev.players)
+        players.delete(playerId)
+        return { ...prev, players }
+      })
+    }
+
     socket.on("player-joined", handlePlayerJoined)
     socket.on("room-joined", handleRoomJoined)
+    socket.on("player-left", handlePlayerLeft)
     return () => {
       socket.off("player-joined", handlePlayerJoined)
       socket.off("room-joined", handleRoomJoined)
+      socket.off("player-left", handlePlayerLeft)
     }
   }, [])
 

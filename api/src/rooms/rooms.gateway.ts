@@ -4,6 +4,7 @@ import {
   WebSocketServer,
   ConnectedSocket,
   MessageBody,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RoomsService } from './rooms.service';
@@ -16,11 +17,19 @@ interface JoinRoomPayload {
 }
 
 @WebSocketGateway({ cors: { origin: process.env.FE_URL } })
-export class RoomsGateway {
+export class RoomsGateway implements OnGatewayDisconnect {
   constructor(private readonly roomsService: RoomsService) {}
 
   @WebSocketServer()
   server: Server;
+
+  handleDisconnect(client: Socket) {
+    const roomId = this.roomsService.findRoomByPlayerId(client.id);
+    if (!roomId) return;
+
+    this.roomsService.removePlayer(roomId, client.id);
+    this.server.to(roomId).emit('player-left', client.id);
+  }
 
   @SubscribeMessage('join-room')
   handleJoinRoom(
@@ -29,7 +38,7 @@ export class RoomsGateway {
   ) {
     const { roomId, displayName, avatar, hostToken } = payload;
 
-    const player = this.roomsService.addPlayer(roomId, displayName, avatar, hostToken);
+    const player = this.roomsService.addPlayer(roomId, displayName, avatar, client.id, hostToken);
 
     client.join(roomId);
 

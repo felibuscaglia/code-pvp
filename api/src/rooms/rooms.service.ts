@@ -8,6 +8,7 @@ import { RoomStatus } from './enums';
 @Injectable()
 export class RoomsService {
   private readonly rooms = new Map<string, Room>();
+  private readonly playerRoomBySocketId = new Map<string, string>();
 
   create(dto: CreateRoomDto): { roomId: string; hostToken: string } {
     const roomId = randomUUID();
@@ -29,19 +30,32 @@ export class RoomsService {
     roomId: string,
     displayName: string,
     avatar: string,
+    socketId: string,
     hostToken?: string,
   ): Player | undefined {
     const room = this.rooms.get(roomId);
     if (!room) return undefined;
 
     const player: Player = {
-      id: randomUUID(),
+      id: socketId,
       displayName,
       avatar,
       isHost: hostToken === room.hostToken,
     };
 
     room.players.set(player.id, player);
+    this.playerRoomBySocketId.set(socketId, roomId);
     return player;
+  }
+
+  removePlayer(roomId: string, playerId: string): boolean {
+    const room = this.rooms.get(roomId);
+    if (!room) return false;
+    this.playerRoomBySocketId.delete(playerId);
+    return room.players.delete(playerId);
+  }
+
+  findRoomByPlayerId(playerId: string): string | undefined {
+    return this.playerRoomBySocketId.get(playerId);
   }
 }
