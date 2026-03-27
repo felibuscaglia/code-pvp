@@ -14,7 +14,6 @@ const difficultyColor: Record<string, string> = {
   easy: "bg-success/15 text-success border-success/25",
   medium: "bg-warning/15 text-warning border-warning/25",
   hard: "bg-danger/15 text-danger border-danger/25",
-  mixed: "bg-primary/15 text-primary border-primary/25",
 }
 
 export function RoomInfoSummary({ roomId }: RoomInfoSummaryProps) {

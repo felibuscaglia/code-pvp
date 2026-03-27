@@ -1,6 +1,5 @@
 import {
   IsString,
-  IsEnum,
   IsInt,
   IsIn,
   IsArray,
@@ -10,7 +9,8 @@ import {
   Max,
   IsOptional,
 } from 'class-validator';
-import { RoomDifficulty } from '../enums/room-difficulty.enum';
+import { ChallengeDifficulty } from '../../supabase/types';
+import { Constants } from '../../supabase/types/database.types';
 
 const ALLOWED_LANGUAGES = ['javascript', 'python'];
 
@@ -26,8 +26,8 @@ export class CreateRoomDto {
   @IsIn([5, 10, 15, 20, 25, 30])
   roundTime: number;
 
-  @IsEnum(RoomDifficulty)
-  difficulty: RoomDifficulty;
+  @IsIn(Constants.public.Enums.challenge_difficulty)
+  difficulty: ChallengeDifficulty;
 
   @IsArray()
   @ArrayMinSize(1)

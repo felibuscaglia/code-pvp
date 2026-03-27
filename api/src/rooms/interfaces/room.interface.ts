@@ -6,4 +6,5 @@ export interface Room extends CreateRoomDto {
   players: Map<string, Player>;
   status: RoomStatus;
   hostToken: string;
+  challenges: string[];
 }

@@ -4,20 +4,28 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { Player } from './interfaces/player.interface';
 import { Room } from './interfaces/room.interface';
 import { RoomStatus } from './enums';
+import { ChallengesService } from '../challenges/challenges.service';
 
 @Injectable()
 export class RoomsService {
   private readonly rooms = new Map<string, Room>();
   private readonly playerRoomBySocketId = new Map<string, string>();
 
-  create(dto: CreateRoomDto): { roomId: string; hostToken: string } {
+  constructor(private readonly challengesService: ChallengesService) {}
+
+  async create(dto: CreateRoomDto): Promise<{ roomId: string; hostToken: string }> {
     const roomId = randomUUID();
     const hostToken = randomUUID();
+    const challenges = await this.challengesService.getChallengesByDifficulty(
+      dto.difficulty,
+      dto.rounds,
+    );
     this.rooms.set(roomId, {
       ...dto,
       players: new Map(),
       status: RoomStatus.WAITING,
       hostToken,
+      challenges,
     });
     return { roomId, hostToken };
   }
