@@ -1,7 +1,8 @@
 export interface TestCaseResult {
   case: number;
   passed: boolean;
-  result?: unknown;
+  result: any;
   expected: any;
   error?: string;
+  logs: string[];
 }

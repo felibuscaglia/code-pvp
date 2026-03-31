@@ -53,13 +53,14 @@ export class SubmissionsService {
         testCases: cases.map((_, i) => ({
           case: i,
           passed: false,
+          result: null,
           expected: cases[i].expected,
           error:
             judge0Response.stderr ??
             judge0Response.compile_output ??
             'Unknown error',
+          logs: [],
         })),
-        logs: [],
       };
     }
 
@@ -67,7 +68,6 @@ export class SubmissionsService {
 
     return {
       testCases: parsed.results ?? [],
-      logs: parsed.logs ?? [],
     };
   }
 }

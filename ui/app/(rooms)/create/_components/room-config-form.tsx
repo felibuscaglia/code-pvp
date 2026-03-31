@@ -2,43 +2,27 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowRight, Loader2 } from "lucide-react"
+import { ArrowRight, Loader2, Globe, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
 import { rooms } from "@/lib/api/services"
 import { DifficultySelector } from "./difficulty-selector"
 import { LanguageSelector } from "./language-selector"
 
-const TIME_LIMITS = [
-  { value: "5", label: "5 min" },
-  { value: "10", label: "10 min" },
-  { value: "15", label: "15 min" },
-  { value: "20", label: "20 min" },
-  { value: "30", label: "30 min" },
-]
-
-const ROUNDS = Array.from({ length: 10 }, (_, i) => String(i + 1))
-
-const MAX_PLAYERS = Array.from({ length: 7 }, (_, i) => String(i + 2))
+const ROUND_OPTIONS = Array.from({ length: 10 }, (_, i) => i + 1)
+const TIME_OPTIONS = [5, 10, 15, 20, 30]
+const PLAYER_OPTIONS = [2, 3, 4, 5, 6, 7, 8]
 
 export function RoomConfigForm() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [name, setName] = useState("")
-  const [rounds, setRounds] = useState("3")
-  const [roundTime, setRoundTime] = useState("10")
+  const [rounds, setRounds] = useState(3)
+  const [roundTime, setRoundTime] = useState(10)
   const [difficulty, setDifficulty] = useState("medium")
   const [languages, setLanguages] = useState<string[]>(["javascript"])
-  const [maxPlayers, setMaxPlayers] = useState("4")
+  const [maxPlayers, setMaxPlayers] = useState(4)
   const [isPublic, setIsPublic] = useState(true)
 
   function toggleLanguage(lang: string, checked: boolean) {
@@ -53,8 +37,8 @@ export function RoomConfigForm() {
     try {
       const { data } = await rooms.create({
         name,
-        rounds: Number(rounds),
-        roundTime: Number(roundTime),
+        rounds,
+        roundTime,
         difficulty,
         languages,
         public: isPublic,
@@ -67,142 +51,163 @@ export function RoomConfigForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      {/* Basics */}
-      <section className="flex flex-col gap-6 rounded-xl border border-border/40 bg-card/50 p-6">
-        <div>
-          <h2 className="font-heading text-sm font-semibold">Basics</h2>
-          <p className="text-xs text-muted-foreground">
-            Name your room and pick a game mode.
-          </p>
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col divide-y divide-border/40 rounded-xl border border-border/40 bg-card/50 backdrop-blur-sm"
+    >
+      {/* Room name */}
+      <div className="px-6 py-5">
+        <Label htmlFor="room-name" className="mb-2 block">
+          Room name
+        </Label>
+        <Input
+          id="room-name"
+          placeholder="e.g. Friday Night Showdown"
+          className="h-10"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+
+      {/* Rounds — pill selector */}
+      <div className="px-6 py-5">
+        <Label className="mb-3 block">Rounds</Label>
+        <div className="flex flex-wrap gap-1.5">
+          {ROUND_OPTIONS.map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setRounds(r)}
+              className={`flex size-9 items-center justify-center rounded-lg text-sm font-medium transition-all ${
+                rounds === r
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              {r}
+            </button>
+          ))}
         </div>
+      </div>
 
-        <fieldset className="flex flex-col gap-2">
-          <Label htmlFor="room-name">Room name</Label>
-          <Input
-            id="room-name"
-            placeholder="e.g. Friday Night Showdown"
-            className="h-9"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </fieldset>
-      </section>
-
-      {/* Match Settings */}
-      <section className="flex flex-col gap-6 rounded-xl border border-border/40 bg-card/50 p-6">
-        <div>
-          <h2 className="font-heading text-sm font-semibold">Match settings</h2>
-          <p className="text-xs text-muted-foreground">
-            Control the pace and challenge level.
-          </p>
+      {/* Time per round — chip selector */}
+      <div className="px-6 py-5">
+        <Label className="mb-3 block">Time per round</Label>
+        <div className="flex flex-wrap gap-1.5">
+          {TIME_OPTIONS.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setRoundTime(t)}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+                roundTime === t
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              {t} min
+            </button>
+          ))}
         </div>
+      </div>
 
-        <div className="grid gap-6 sm:grid-cols-2">
-          <fieldset className="flex flex-col gap-2">
-            <Label htmlFor="rounds">Rounds</Label>
-            <Select value={rounds} onValueChange={setRounds}>
-              <SelectTrigger id="rounds" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ROUNDS.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r} {r === "1" ? "round" : "rounds"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </fieldset>
+      {/* Difficulty */}
+      <div className="px-6 py-5">
+        <DifficultySelector value={difficulty} onValueChange={setDifficulty} />
+      </div>
 
-          <fieldset className="flex flex-col gap-2">
-            <Label htmlFor="time-limit">Time per round</Label>
-            <Select value={roundTime} onValueChange={setRoundTime}>
-              <SelectTrigger id="time-limit" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TIME_LIMITS.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>
-                    {t.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </fieldset>
+      {/* Languages */}
+      <div className="px-6 py-5">
+        <LanguageSelector value={languages} onToggle={toggleLanguage} />
+      </div>
 
-          <div className="sm:col-span-2">
-            <DifficultySelector value={difficulty} onValueChange={setDifficulty} />
-          </div>
+      {/* Max players — pill selector */}
+      <div className="px-6 py-5">
+        <Label className="mb-3 block">Max players</Label>
+        <div className="flex flex-wrap gap-1.5">
+          {PLAYER_OPTIONS.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setMaxPlayers(p)}
+              className={`flex size-9 items-center justify-center rounded-lg text-sm font-medium transition-all ${
+                maxPlayers === p
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
         </div>
-      </section>
+      </div>
 
-      {/* Preferences */}
-      <section className="flex flex-col gap-6 rounded-xl border border-border/40 bg-card/50 p-6">
-        <div>
-          <h2 className="font-heading text-sm font-semibold">Preferences</h2>
-          <p className="text-xs text-muted-foreground">
-            Languages, visibility, and player limits.
-          </p>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <LanguageSelector value={languages} onToggle={toggleLanguage} />
-          </div>
-
-          <fieldset className="flex flex-col gap-2">
-            <Label htmlFor="max-players">Max players</Label>
-            <Select value={maxPlayers} onValueChange={setMaxPlayers}>
-              <SelectTrigger id="max-players" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {MAX_PLAYERS.map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {p} players
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </fieldset>
-
-          <fieldset className="flex items-center justify-between gap-4 sm:col-span-2">
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="visibility">Public room</Label>
-              <p className="text-xs text-muted-foreground">
-                Public rooms appear in Browse and anyone can join. Private rooms
-                require an invite link.
-              </p>
+      {/* Visibility toggle */}
+      <div className="px-6 py-5">
+        <Label className="mb-3 block">Visibility</Label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setIsPublic(true)}
+            className={`flex flex-1 items-center gap-3 rounded-lg border px-4 py-3 text-left transition-all ${
+              isPublic
+                ? "border-primary/50 bg-primary/10 ring-2 ring-primary/20"
+                : "border-border/50 bg-muted/30 hover:border-border hover:bg-muted/50"
+            }`}
+          >
+            <Globe className={`size-4 shrink-0 ${isPublic ? "text-primary" : "text-muted-foreground"}`} />
+            <div>
+              <div className={`text-sm font-medium ${isPublic ? "text-foreground" : "text-muted-foreground"}`}>
+                Public
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Anyone can find and join
+              </div>
             </div>
-            <Switch
-              id="visibility"
-              checked={isPublic}
-              onCheckedChange={setIsPublic}
-            />
-          </fieldset>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsPublic(false)}
+            className={`flex flex-1 items-center gap-3 rounded-lg border px-4 py-3 text-left transition-all ${
+              !isPublic
+                ? "border-primary/50 bg-primary/10 ring-2 ring-primary/20"
+                : "border-border/50 bg-muted/30 hover:border-border hover:bg-muted/50"
+            }`}
+          >
+            <Lock className={`size-4 shrink-0 ${!isPublic ? "text-primary" : "text-muted-foreground"}`} />
+            <div>
+              <div className={`text-sm font-medium ${!isPublic ? "text-foreground" : "text-muted-foreground"}`}>
+                Private
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Invite link required
+              </div>
+            </div>
+          </button>
         </div>
-      </section>
+      </div>
 
       {/* Submit */}
-      <Button
-        type="submit"
-        size="lg"
-        disabled={isLoading}
-        className={`w-full sm:w-auto sm:self-end ${!isLoading ? "glow-primary" : ""}`}
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="animate-spin" />
-            Creating...
-          </>
-        ) : (
-          <>
-            Create Room
-            <ArrowRight data-icon="inline-end" />
-          </>
-        )}
-      </Button>
+      <div className="px-6 py-5">
+        <Button
+          type="submit"
+          size="lg"
+          disabled={isLoading}
+          className={`h-11 w-full ${!isLoading ? "glow-primary" : ""}`}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="animate-spin" />
+              Creating...
+            </>
+          ) : (
+            <>
+              Create Room
+              <ArrowRight data-icon="inline-end" />
+            </>
+          )}
+        </Button>
+      </div>
     </form>
   )
 }

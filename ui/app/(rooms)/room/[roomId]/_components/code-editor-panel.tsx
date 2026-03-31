@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/resizable"
 import { useRoom } from "@/lib/contexts/room"
 import { useParams } from "next/navigation"
-import { submissions } from "@/lib/api/services"
+import { submissions, type TestCaseResult } from "@/lib/api/services"
 
 const LANGUAGE_MAP: Record<string, string> = {
   javascript: "javascript",
@@ -28,6 +28,7 @@ export function CodeEditorPanel() {
   const [language, setLanguage] = useState("javascript")
   const [code, setCode] = useState(starterCode["javascript"] ?? "")
   const [isRunning, setIsRunning] = useState(false)
+  const [testResults, setTestResults] = useState<TestCaseResult[] | null>(null)
 
   function handleLanguageChange(lang: string) {
     setLanguage(lang)
@@ -38,10 +39,11 @@ export function CodeEditorPanel() {
     if (!challenge || isRunning) return
     setIsRunning(true)
     try {
-      await submissions.create(
+      const { data } = await submissions.create(
         { challengeId: challenge.id, language, code, roomId },
         "test",
       )
+      setTestResults(data.testCases)
     } finally {
       setIsRunning(false)
     }
@@ -92,7 +94,7 @@ export function CodeEditorPanel() {
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={35} minSize={15}>
-          <TestResultsPanel />
+          <TestResultsPanel results={testResults} isRunning={isRunning} />
         </ResizablePanel>
       </ResizablePanelGroup>
 

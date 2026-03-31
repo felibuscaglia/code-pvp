@@ -11,7 +11,6 @@ export class SubmissionsController {
     @Query('mode') mode: 'test' | 'submit',
     @Body() dto: CreateSubmissionDto,
   ) {
-    console.log({ mode, dto });
     return this.submissionsService.submit(dto, mode);
   }
 }

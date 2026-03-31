@@ -5,19 +5,12 @@ import {
   Globe,
   Repeat,
   Link as LinkIcon,
-  ArrowRight,
   Check,
 } from "lucide-react"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Logo, LogoIcon } from "@/components/ui/logo"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { JoinRoomCTA } from "./_components/join-room-cta"
+import { HeroActions } from "./_components/hero-actions"
 import { BattlePreview } from "./_components/battle-preview"
 
 export const metadata: Metadata = {
@@ -117,104 +110,103 @@ export default function LandingPage() {
       <header className="fixed top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-lg">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
           <Logo />
-          <Button variant="ghost" size="sm" asChild>
-            <a href="#features">Learn more</a>
-          </Button>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="relative flex flex-col items-center px-6 pt-14">
+      <section className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-6 pt-14">
         {/* Background glows */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2"
         >
-          <div className="h-[500px] w-[800px] rounded-full bg-primary/5 blur-[120px]" />
+          <div className="h-[600px] w-[900px] rounded-full bg-primary/8 blur-[150px]" />
         </div>
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-1/3 left-2/3 -translate-x-1/2 -translate-y-1/2"
+          className="pointer-events-none absolute right-0 bottom-1/4"
         >
-          <div className="h-[300px] w-[400px] rounded-full bg-success/5 blur-[100px]" />
+          <div className="h-[400px] w-[500px] rounded-full bg-success/5 blur-[120px]" />
+        </div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-0"
+        >
+          <div className="h-[300px] w-[400px] rounded-full bg-primary/3 blur-[100px]" />
         </div>
 
-        <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-8 pt-36 pb-16 text-center">
-          <Badge variant="secondary" className="animate-fade-in-up gap-1.5 font-mono text-xs">
-            <span className="inline-block size-1.5 animate-pulse rounded-full bg-success" />
-            Now in early access
-          </Badge>
+        <div className="relative mx-auto grid w-full max-w-5xl items-center gap-16 py-16 lg:grid-cols-2">
+          {/* Left — Copy & Actions */}
+          <div className="flex flex-col items-center gap-8 lg:items-start">
+            <Badge
+              variant="secondary"
+              className="animate-fade-in-up gap-1.5 font-mono text-xs"
+            >
+              <span className="inline-block size-1.5 animate-pulse rounded-full bg-success" />
+              Now in early access
+            </Badge>
 
-          <div
-            className="flex flex-col gap-4 animate-fade-in-up"
-            style={{ animationDelay: "0.1s" }}
-          >
-            <h1 className="font-heading text-5xl leading-[1.05] font-bold tracking-tight [word-spacing:-0.3em] sm:text-6xl md:text-7xl">
-              Code. <br />Compete.{" "}<br />
-              <span className="text-primary">Conquer.</span>
-            </h1>
-            <p className="mx-auto max-w-lg text-base text-muted-foreground sm:text-lg">
-              Real-time competitive coding where speed meets quality. Create a
-              room, challenge your friends, and prove you write the best code
-              under pressure.
-            </p>
-          </div>
+            <div
+              className="flex flex-col gap-5 text-center animate-fade-in-up lg:text-left"
+              style={{ animationDelay: "0.1s" }}
+            >
+              <h1 className="font-heading text-5xl leading-[1.05] font-bold tracking-tight sm:text-6xl lg:text-7xl">
+                Code.
+                <br />
+                Compete.
+                <br />
+                <span className="text-primary">Conquer.</span>
+              </h1>
+              <p className="max-w-md text-base text-muted-foreground sm:text-lg">
+                Real-time competitive coding where speed meets quality. Create a
+                room, challenge your friends, and prove you write the best code
+                under pressure.
+              </p>
+            </div>
 
-          {/* CTAs */}
-          <div
-            className="flex flex-col items-center gap-4 animate-fade-in-up"
-            style={{ animationDelay: "0.2s" }}
-          >
-            <Button size="lg" className="glow-primary" asChild>
-              <Link href="/create">
-                Create Room
-                <ArrowRight data-icon="inline-end" />
-              </Link>
-            </Button>
-            <div className="flex items-center gap-3">
-              <JoinRoomCTA />
-              <span className="text-xs text-muted-foreground/40">or</span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="sm" disabled>
-                    Browse Public Rooms
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Coming soon</TooltipContent>
-              </Tooltip>
+            {/* Actions */}
+            <div
+              className="flex w-full max-w-lg flex-col items-center animate-fade-in-up lg:items-start"
+              style={{ animationDelay: "0.2s" }}
+            >
+              <HeroActions />
+              <p className="mt-4 text-xs text-muted-foreground/60">
+                Free to play — no account required
+              </p>
             </div>
           </div>
 
-          <p
-            className="text-xs text-muted-foreground/70 animate-fade-in-up"
+          {/* Right — Battle Preview */}
+          <div
+            className="relative animate-fade-in-up"
             style={{ animationDelay: "0.3s" }}
           >
-            Free to play — no account required to join a room
-          </p>
+            {/* Glow behind the card */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 -m-8 rounded-3xl bg-primary/5 blur-3xl"
+            />
+            <BattlePreview />
+          </div>
         </div>
 
-        {/* Battle Preview */}
+        {/* Highlights bar pinned to bottom of hero */}
         <div
-          className="animate-fade-in-up relative mx-auto w-full max-w-md pb-24"
+          className="absolute bottom-0 left-0 w-full border-t border-border/50 animate-fade-in-up"
           style={{ animationDelay: "0.4s" }}
         >
-          <BattlePreview />
-        </div>
-      </section>
-
-      {/* Highlights */}
-      <section className="border-t border-border/50 px-6 py-10">
-        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-3">
-          {highlights.map((text) => (
-            <Badge
-              key={text}
-              variant="secondary"
-              className="gap-1.5 px-3 py-1 text-xs font-normal"
-            >
-              <Check className="size-3 text-success" />
-              {text}
-            </Badge>
-          ))}
+          <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-3 px-6 py-5">
+            {highlights.map((text) => (
+              <Badge
+                key={text}
+                variant="secondary"
+                className="gap-1.5 px-3 py-1 text-xs font-normal"
+              >
+                <Check className="size-3 text-success" />
+                {text}
+              </Badge>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -335,22 +327,7 @@ export default function LandingPage() {
           <p className="text-muted-foreground">
             Create a room and send the link. Your first battle starts now.
           </p>
-          <div className="flex gap-3">
-            <Button size="lg" className="glow-primary" asChild>
-              <Link href="/create">
-                Create Room
-                <ArrowRight data-icon="inline-end" />
-              </Link>
-            </Button>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="outline" size="lg" disabled>
-                  Browse Public Rooms
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Coming soon</TooltipContent>
-            </Tooltip>
-          </div>
+          <HeroActions />
         </div>
       </section>
 

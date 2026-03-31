@@ -56,6 +56,19 @@ export interface CreateSubmissionPayload {
   roomId: string
 }
 
+export interface TestCaseResult {
+  case: number
+  passed: boolean
+  result: unknown
+  expected: unknown
+  error?: string
+  logs: string[]
+}
+
+export interface SubmissionResult {
+  testCases: TestCaseResult[]
+}
+
 export interface Challenge {
   id: string
   title: string
