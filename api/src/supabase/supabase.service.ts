@@ -19,8 +19,8 @@ export class SupabaseService {
     table: TableName,
     filters: Partial<Database['public']['Tables'][TableName]['Row']>,
     select: string = '*',
-  ) {
-    let query = this.client.from(table).select(select);
+  ): Promise<Database['public']['Tables'][TableName]['Row'] | null> {
+    let query = this.client.from(table).select(select as any);
 
     for (const [key, value] of Object.entries(filters)) {
       query = query.eq(key as any, value);
@@ -32,7 +32,7 @@ export class SupabaseService {
       throw error;
     }
 
-    return data;
+    return data as Database['public']['Tables'][TableName]['Row'] | null;
   }
 
   async rpc<FnName extends keyof Functions>(

@@ -23,19 +23,7 @@ export function ProblemPanel() {
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border/50 px-5 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Circle className="size-2.5 fill-primary text-primary" />
-            <span className="font-medium uppercase tracking-wider">
-              Round {room.currentRound}/{room.rounds}
-            </span>
-          </div>
-          <Separator orientation="vertical" className="h-4" />
-          <h2 className="font-heading text-base font-bold">{challenge.title}</h2>
-          <Badge className={DIFFICULTY_STYLES[challenge.difficulty]}>
-            {challenge.difficulty}
-          </Badge>
-        </div>
+        <h2 className="font-heading text-base font-bold">{challenge.title}</h2>
         <CountdownTimer totalSeconds={room.roundTime * 60} />
       </div>
 

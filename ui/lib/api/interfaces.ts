@@ -39,13 +39,30 @@ export interface Example {
   explanation: string | null
 }
 
+export interface TestCase {
+  input: Record<string, unknown>
+  expected: unknown
+}
+
+export interface TestCases {
+  hidden: TestCase[]
+  public: TestCase[]
+}
+
+export interface CreateSubmissionPayload {
+  challengeId: string
+  language: string
+  code: string
+  roomId: string
+}
+
 export interface Challenge {
   id: string
   title: string
   description: string
   difficulty: "easy" | "medium" | "hard"
   starter_code: Record<string, string>
-  test_cases: unknown
+  test_cases: TestCases
   constraints: string[] | null
   tags: string[] | null
   created_at: string

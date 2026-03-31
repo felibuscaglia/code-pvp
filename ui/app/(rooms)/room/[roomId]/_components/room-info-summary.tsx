@@ -43,7 +43,9 @@ export function RoomInfoSummary({ roomId }: RoomInfoSummaryProps) {
       <div className="hidden items-center gap-2 sm:flex">
         <Badge variant="secondary" className="gap-1 text-xs font-normal">
           <RotateCw className="size-3" />
-          {room.rounds} {room.rounds === 1 ? "round" : "rounds"}
+          {room.status === "waiting"
+            ? `${room.rounds} ${room.rounds === 1 ? "round" : "rounds"}`
+            : `Round ${room.currentRound}/${room.rounds}`}
         </Badge>
         <Badge variant="secondary" className="gap-1 text-xs font-normal">
           <Timer className="size-3" />
@@ -58,9 +60,11 @@ export function RoomInfoSummary({ roomId }: RoomInfoSummaryProps) {
         </Badge>
       </div>
 
-      <div className="ml-auto">
-        <RoomPlayers />
-      </div>
+      {room.status === "in_progress" && (
+        <div className="ml-auto">
+          <RoomPlayers />
+        </div>
+      )}
     </div>
   )
 }
