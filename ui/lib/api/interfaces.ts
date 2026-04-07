@@ -22,7 +22,7 @@ export interface Room {
   roundTime: number
   difficulty: string
   languages: string[]
-  maxPlayers?: number
+  maxPlayers: number
   public: boolean
   players: Map<string, Player>
   status: RoomStatus
@@ -86,7 +86,7 @@ export interface ScoreBreakdown {
 
 export interface RoundResult {
   scores: Record<string, ScoreBreakdown>
-  winner: string
+  winner: string | null
 }
 
 export interface GameStanding {
@@ -96,7 +96,7 @@ export interface GameStanding {
 
 export interface GameResult {
   standings: GameStanding[]
-  winner: string
+  winner: string | null
 }
 
 export interface Challenge {

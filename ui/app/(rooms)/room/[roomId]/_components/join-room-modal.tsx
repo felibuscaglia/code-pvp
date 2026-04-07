@@ -44,7 +44,6 @@ export function JoinRoomModal({ roomId }: JoinRoomModalProps) {
     if (!canJoin) return
 
     const avatar = AVATARS.find((a) => a.id === selectedAvatar)!.emoji
-
     const hostToken = sessionStorage.getItem(`hostToken:${roomId}`)
 
     socket.connect()

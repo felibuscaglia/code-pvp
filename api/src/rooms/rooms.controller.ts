@@ -17,6 +17,11 @@ export class RoomsController {
 
     if (!room) throw new NotFoundException('Room not found.');
 
-    return { ...room, players: Object.fromEntries(room.players) };
+    const { nextRoundTimeout: _nextRoundTimeout, rounds, ...rest } = room;
+    return {
+      ...rest,
+      players: Object.fromEntries(room.players),
+      rounds: rounds.map(({ timeout: _timeout, ...round }) => round),
+    };
   }
 }

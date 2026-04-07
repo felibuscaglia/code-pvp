@@ -5,4 +5,5 @@ export interface RoundState {
   submittedPlayerIds: string[];
   scores: Map<string, Promise<ScoreBreakdown>>;
   resolvedScores: Map<string, ScoreBreakdown>;
+  timeout?: ReturnType<typeof setTimeout>;
 }

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useEffect, useMemo, useRef } from "react"
 import confetti from "canvas-confetti"
-import { Crown, Home, Medal, Trophy } from "lucide-react"
+import { Crown, Ghost, Home, Medal, Trophy } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -101,6 +101,7 @@ export function FinalResultsScreen() {
 
   if (!room || !gameResult) return null
 
+  const hasWinner = gameResult.winner !== null
   const podiumPlayers = stats.slice(0, 3)
 
   return (
@@ -113,7 +114,27 @@ export function FinalResultsScreen() {
         <h1 className="text-3xl font-bold text-foreground">{room.name}</h1>
       </div>
 
+      {!hasWinner && (
+        <div className="mb-8 mt-8 flex animate-fade-in-up flex-col items-center gap-3 [animation-delay:150ms]">
+          <div className="relative">
+            <div className="absolute -inset-3 rounded-full bg-muted-foreground/10 blur-xl" />
+            <Avatar size="lg" className="relative ring-4 ring-muted-foreground/30">
+              <AvatarFallback className="text-2xl">
+                <Ghost className="size-8 text-muted-foreground" />
+              </AvatarFallback>
+            </Avatar>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-lg font-bold text-muted-foreground">No winner</span>
+            <span className="text-sm text-muted-foreground">
+              Nobody scored points this session
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Podium */}
+      {hasWinner && (
       <div className="mb-12 mt-8 flex w-full max-w-3xl animate-fade-in-up items-end justify-center gap-6 [animation-delay:150ms]">
         {PODIUM_ORDER.map((rank) => {
           const entry = podiumPlayers[rank]
@@ -157,6 +178,7 @@ export function FinalResultsScreen() {
           )
         })}
       </div>
+      )}
 
       {/* Session leaderboard */}
       <div className="mb-10 w-full max-w-4xl animate-fade-in-up rounded-lg border border-border/50 bg-card/50 backdrop-blur-sm [animation-delay:300ms]">
@@ -176,7 +198,7 @@ export function FinalResultsScreen() {
           </TableHeader>
           <TableBody>
             {stats.map((entry, rank) => {
-              const isFirst = rank === 0
+              const isFirst = rank === 0 && hasWinner
               const isMe = entry.playerId === player?.id
               return (
                 <TableRow

@@ -7,7 +7,16 @@ import { LogoIcon } from "@/components/ui/logo"
 import { RoomError } from "@/lib/contexts/room/room-context"
 
 export default function RoomErrorPage({ error }: { error: Error }) {
-  const isNotFound = error instanceof RoomError && error.status === 404
+  const isRoomError = error instanceof RoomError
+  const isNotFound = isRoomError && error.status === 404
+  const heading = isNotFound
+    ? "Room not found"
+    : isRoomError
+      ? error.message
+      : "Unable to join room"
+  const description = isNotFound
+    ? "This room doesn't exist or has already ended. Check the invite link and try again."
+    : null;
 
   return (
     <div className="bg-grid relative flex min-h-svh flex-col items-center justify-center px-6">
@@ -25,14 +34,10 @@ export default function RoomErrorPage({ error }: { error: Error }) {
           <div className="flex items-center justify-center gap-2 text-danger">
             <AlertCircle className="size-5" />
             <h1 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">
-              {isNotFound ? "Room not found" : "Unable to join room"}
+              {heading}
             </h1>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {isNotFound
-              ? "This room doesn't exist or has already ended. Check the invite link and try again."
-              : "Something went wrong. If you received an invite link, reach out to the room creator to get a new one."}
-          </p>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
 
         <Button variant="outline" asChild>

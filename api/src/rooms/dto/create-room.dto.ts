@@ -7,7 +7,6 @@ import {
   IsBoolean,
   Min,
   Max,
-  IsOptional,
 } from 'class-validator';
 import { type ChallengeDifficulty } from '../../supabase/types';
 import { Constants } from '../../supabase/types/database.types';
@@ -37,8 +36,7 @@ export class CreateRoomDto {
   @IsInt()
   @Min(2)
   @Max(8)
-  @IsOptional()
-  maxPlayers?: number;
+  maxPlayers: number;
 
   @IsBoolean()
   public: boolean;

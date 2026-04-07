@@ -99,7 +99,7 @@ export class SubmissionsService {
     const memoryScore = Math.max(0, 1 - result.totalMemoryUsage / maxMemory);
 
     // 4. Submission speed (12%) — faster submission within the round earns more
-    const roundDuration = roundTime * 1000;
+    const roundDuration = roundTime * 60_000;
     const elapsed = submittedAt - roundStartedAt;
     const speedScore = Math.max(0, 1 - elapsed / roundDuration);
 

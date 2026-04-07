@@ -136,6 +136,10 @@ export function RoomProvider({
       })
     }
 
+    function handleException(err: { message?: string }) {
+      setError(new RoomError(err?.message ?? "Failed to join room", 409))
+    }
+
     socket.on("player-joined", handlePlayerJoined)
     socket.on("room-joined", handleRoomJoined)
     socket.on("player-left", handlePlayerLeft)
@@ -143,6 +147,7 @@ export function RoomProvider({
     socket.on("player-submitted", handlePlayerSubmitted)
     socket.on("end-round", handleEndRound)
     socket.on("end-game", handleEndGame)
+    socket.on("exception", handleException)
     return () => {
       socket.off("player-joined", handlePlayerJoined)
       socket.off("room-joined", handleRoomJoined)
@@ -151,6 +156,7 @@ export function RoomProvider({
       socket.off("player-submitted", handlePlayerSubmitted)
       socket.off("end-round", handleEndRound)
       socket.off("end-game", handleEndGame)
+      socket.off("exception", handleException)
     }
   }, [])
 

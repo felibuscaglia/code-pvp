@@ -42,6 +42,7 @@ export function RoomConfigForm() {
         difficulty,
         languages,
         public: isPublic,
+        maxPlayers,
       })
       sessionStorage.setItem(`hostToken:${data.roomId}`, data.hostToken)
       router.push(`/room/${data.roomId}`)

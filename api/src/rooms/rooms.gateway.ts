@@ -11,8 +11,10 @@ import { RoomsService } from './rooms.service';
 import { ChallengesService } from '../challenges/challenges.service';
 import { SubmissionsService } from '../submissions/submissions.service';
 import { RoomStatus } from './enums';
-import { HttpStatus } from '@nestjs/common';
+import { HttpStatus, Logger } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 import { type JoinRoomPayload, type RoundState } from './interfaces';
+import { type ScoreBreakdown } from '../submissions/interfaces';
 import { type CreateSubmissionDto } from '../submissions/dto/create-submission.dto';
 
 @WebSocketGateway({ cors: { origin: process.env.FE_URL } })
@@ -26,6 +28,8 @@ export class RoomsGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+  private readonly logger = new Logger(RoomsGateway.name);
+
   async handleDisconnect(client: Socket) {
     const roomId = this.roomsService.findRoomByPlayerId(client.id);
     if (!roomId) return;
@@ -38,7 +42,7 @@ export class RoomsGateway implements OnGatewayDisconnect {
 
     if (room.players.size === 0) {
       clearTimeout(room.nextRoundTimeout);
-      this.roomsService.updateStatus(roomId, RoomStatus.FINISHED);
+      this.roomsService.delete(roomId);
       return;
     }
 
@@ -59,6 +63,18 @@ export class RoomsGateway implements OnGatewayDisconnect {
     @MessageBody() payload: JoinRoomPayload,
   ) {
     const { roomId, displayName, avatar, hostToken } = payload;
+
+    const existingRoom = this.roomsService.findById(roomId);
+    if (
+      existingRoom?.maxPlayers &&
+      existingRoom.players.size >= existingRoom.maxPlayers
+    ) {
+      throw new WsException('Room is full');
+    }
+
+    if (existingRoom && existingRoom.status !== RoomStatus.WAITING) {
+      throw new WsException('Game has already started');
+    }
 
     const player = this.roomsService.addPlayer(
       roomId,
@@ -102,6 +118,11 @@ export class RoomsGateway implements OnGatewayDisconnect {
 
     this.roomsService.updateStatus(roomId, RoomStatus.IN_PROGRESS);
     this.roomsService.startRound(roomId);
+
+    const roundState = room.rounds[room.currentRound - 1];
+    roundState.timeout = setTimeout(() => {
+      this.emitRoundEnded(roomId, roundState);
+    }, room.roundTime * 60_000);
 
     this.server.to(roomId).emit('start-round', {
       round: room.currentRound,
@@ -171,23 +192,49 @@ export class RoomsGateway implements OnGatewayDisconnect {
     const room = this.roomsService.findById(roomId);
     if (!room) return;
 
+    this.logger.log(
+      `emitRoundEnded called for room ${roomId} (round ${room.currentRound})`,
+    );
+
+    clearTimeout(roundState.timeout);
+    roundState.timeout = undefined;
+
     const playerIds = [...roundState.scores.keys()];
     const resolvedScores = await Promise.all(roundState.scores.values());
     playerIds.forEach((id, i) => {
       roundState.resolvedScores.set(id, resolvedScores[i]);
     });
-    const scores = Object.fromEntries(
-      playerIds.map((id, i) => [id, resolvedScores[i]]),
-    );
-    const winner = playerIds.reduce((a, b) =>
-      scores[a].total >= scores[b].total ? a : b,
-    );
+
+    if (roundState.resolvedScores.size === 0) {
+      const zero: ScoreBreakdown = {
+        passRate: 0,
+        timeScore: 0,
+        memoryScore: 0,
+        speedScore: 0,
+        lengthScore: 0,
+        total: 0,
+      };
+      for (const playerId of room.players.keys()) {
+        roundState.resolvedScores.set(playerId, zero);
+      }
+    }
+
+    const scores = Object.fromEntries(roundState.resolvedScores);
+    const scoredPlayerIds = [...roundState.resolvedScores.keys()];
+    const winner =
+      scoredPlayerIds.length &&
+      scoredPlayerIds.some((id) => scores[id].total > 0)
+        ? scoredPlayerIds.reduce((a, b) =>
+            scores[a].total >= scores[b].total ? a : b,
+          )
+        : null;
     this.server.to(roomId).emit('end-round', { scores, winner });
 
     room.currentRound++;
 
     if (room.currentRound > room.roundCount) {
       this.emitGameEnded(roomId);
+      return;
     }
 
     room.nextRoundTimeout = setTimeout(() => {
@@ -198,6 +245,8 @@ export class RoomsGateway implements OnGatewayDisconnect {
   private emitGameEnded(roomId: string) {
     const room = this.roomsService.findById(roomId);
     if (!room) return;
+
+    this.logger.log(`emitGameEnded called for room ${roomId}`);
 
     const totals = new Map<string, number>();
     for (const round of room.rounds) {
@@ -210,7 +259,9 @@ export class RoomsGateway implements OnGatewayDisconnect {
       .map(([playerId, total]) => ({ playerId, total }))
       .sort((a, b) => b.total - a.total);
 
-    const winner = standings[0]?.playerId;
+    const winner = standings.some((s) => s.total > 0)
+      ? standings[0].playerId
+      : null;
 
     this.roomsService.updateStatus(roomId, RoomStatus.FINISHED);
     this.server.to(roomId).emit('end-game', { standings, winner });

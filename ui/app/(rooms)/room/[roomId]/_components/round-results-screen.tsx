@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import confetti from "canvas-confetti"
-import { Trophy, CheckCircle, Cpu, Gauge, HardDrive, FileCode } from "lucide-react"
+import { Trophy, CheckCircle, Cpu, Gauge, HardDrive, FileCode, Ghost } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Table,
@@ -69,32 +69,54 @@ export function RoundResultsScreen() {
     })
     .sort((a, b) => b.score.total - a.score.total)
 
-  const winner = ranked[0]
+  const hasWinner = roundResult.winner !== null
+  const winner = hasWinner ? ranked[0] : null
 
   return (
     <div className="flex flex-1 overflow-hidden">
       <div className="flex flex-1 flex-col items-center overflow-y-auto px-4 py-8">
       {/* Winner highlight */}
       <div className="mb-8 flex animate-fade-in-up flex-col items-center gap-3">
-        <div className="relative">
-          <div className="absolute -inset-3 animate-pulse rounded-full bg-amber-400/20 blur-xl" />
-          <Avatar size="lg" className="relative ring-4 ring-amber-400/60">
-            <AvatarFallback className="text-2xl">{winner.avatar}</AvatarFallback>
-          </Avatar>
-          <div className="absolute -top-2 -right-2 flex size-7 items-center justify-center rounded-full bg-amber-400 shadow-lg">
-            <Trophy className="size-3.5 text-amber-900" />
-          </div>
-        </div>
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-lg font-bold text-amber-400">{winner.displayName}</span>
-          <span className="text-sm text-muted-foreground">
-            Round {room.currentRound} Winner
-          </span>
-          <span className="font-mono text-2xl font-bold text-foreground tabular-nums">
-            {(winner.score.total * 100).toFixed(1)}
-            <span className="ml-1 text-sm font-normal text-muted-foreground">pts</span>
-          </span>
-        </div>
+        {winner ? (
+          <>
+            <div className="relative">
+              <div className="absolute -inset-3 animate-pulse rounded-full bg-amber-400/20 blur-xl" />
+              <Avatar size="lg" className="relative ring-4 ring-amber-400/60">
+                <AvatarFallback className="text-2xl">{winner.avatar}</AvatarFallback>
+              </Avatar>
+              <div className="absolute -top-2 -right-2 flex size-7 items-center justify-center rounded-full bg-amber-400 shadow-lg">
+                <Trophy className="size-3.5 text-amber-900" />
+              </div>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-lg font-bold text-amber-400">{winner.displayName}</span>
+              <span className="text-sm text-muted-foreground">
+                Round {room.currentRound} Winner
+              </span>
+              <span className="font-mono text-2xl font-bold text-foreground tabular-nums">
+                {(winner.score.total * 100).toFixed(1)}
+                <span className="ml-1 text-sm font-normal text-muted-foreground">pts</span>
+              </span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="relative">
+              <div className="absolute -inset-3 rounded-full bg-muted-foreground/10 blur-xl" />
+              <Avatar size="lg" className="relative ring-4 ring-muted-foreground/30">
+                <AvatarFallback className="text-2xl">
+                  <Ghost className="size-8 text-muted-foreground" />
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-lg font-bold text-muted-foreground">No winner</span>
+              <span className="text-sm text-muted-foreground">
+                Nobody scored in round {room.currentRound}
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Leaderboard table */}
@@ -144,7 +166,7 @@ export function RoundResultsScreen() {
           </TableHeader>
           <TableBody>
             {ranked.map((entry, rank) => {
-              const isFirst = rank === 0
+              const isFirst = rank === 0 && hasWinner
               const isMe = entry.playerId === player?.id
               return (
                 <TableRow

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { Server } from 'socket.io';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { Player } from './interfaces/player.interface';
 import { Room } from './interfaces/room.interface';
@@ -64,6 +63,10 @@ export class RoomsService {
     if (!room) return false;
     this.playerRoomBySocketId.delete(playerId);
     return room.players.delete(playerId);
+  }
+
+  delete(roomId: string): void {
+    this.rooms.delete(roomId);
   }
 
   updateStatus(roomId: string, status: RoomStatus): void {
