@@ -91,7 +91,7 @@ export class RoomsGateway implements OnGatewayDisconnect {
     const room = this.roomsService.findById(roomId);
 
     if (room?.maxPlayers && room?.players.size >= room.maxPlayers) {
-      this.server.to(roomId).emit('start-game');
+      this.handleStartGame({ roomId });
     }
 
     return {
