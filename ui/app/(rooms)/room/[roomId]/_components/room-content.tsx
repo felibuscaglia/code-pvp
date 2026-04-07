@@ -4,6 +4,7 @@ import { useRoom } from "@/lib/contexts/room"
 import { Skeleton } from "@/components/ui/skeleton"
 import { WaitingLobby } from "./waiting-lobby"
 import { ArenaView } from "./arena-view"
+import { RoundResultsScreen } from "./round-results-screen"
 
 interface RoomContentProps {
   roomId: string
@@ -39,9 +40,11 @@ function LobbySkeleton() {
 }
 
 export function RoomContent({ roomId }: RoomContentProps) {
-  const { room, isLoading } = useRoom()
+  const { room, roundResult, isLoading } = useRoom()
 
   if (isLoading || !room) return <LobbySkeleton />
+
+  if (roundResult) return <RoundResultsScreen />
 
   switch (room.status) {
     case "waiting":

@@ -1,7 +1,7 @@
 import { api } from "./client"
 import type { CreateRoomPayload, CreateSubmissionPayload, Room, SubmissionResult } from "./interfaces"
 
-export type { CreateRoomPayload, CreateSubmissionPayload, Room, RoomStatus, RoundState, Player, Challenge, Example, TestCaseResult, SubmissionResult } from "./interfaces"
+export type { CreateRoomPayload, CreateSubmissionPayload, Room, RoomStatus, RoundState, Player, Challenge, Example, TestCaseResult, SubmissionResult, ScoreBreakdown, RoundResult } from "./interfaces"
 
 export const rooms = {
   create: (payload: CreateRoomPayload) =>

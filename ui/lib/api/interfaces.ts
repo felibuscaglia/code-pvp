@@ -75,6 +75,20 @@ export interface SubmissionResult {
   testCases: TestCaseResult[]
 }
 
+export interface ScoreBreakdown {
+  passRate: number
+  timeScore: number
+  memoryScore: number
+  speedScore: number
+  lengthScore: number
+  total: number
+}
+
+export interface RoundResult {
+  scores: Record<string, ScoreBreakdown>
+  winner: string
+}
+
 export interface Challenge {
   id: string
   title: string

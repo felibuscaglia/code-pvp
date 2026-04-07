@@ -2,7 +2,7 @@
 
 import { createContext, useEffect, useState } from "react"
 import { isAxiosError } from "axios"
-import { rooms, type Room, type Player, type Challenge } from "@/lib/api/services"
+import { rooms, type Room, type Player, type Challenge, type RoundResult } from "@/lib/api/services"
 import { socket } from "@/lib/api/socket"
 
 export class RoomError extends Error {
@@ -18,6 +18,7 @@ export interface RoomContextValue {
   room: Room | null
   player: Player | null
   challenge: Challenge | null
+  roundResult: RoundResult | null
   isLoading: boolean
 }
 
@@ -33,6 +34,7 @@ export function RoomProvider({
   const [room, setRoom] = useState<Room | null>(null)
   const [player, setPlayer] = useState<Player | null>(null)
   const [challenge, setChallenge] = useState<Challenge | null>(null)
+  const [roundResult, setRoundResult] = useState<RoundResult | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<RoomError | null>(null)
 
@@ -83,6 +85,7 @@ export function RoomProvider({
     }
 
     function handleStartRound({ round, challenge }: { round: number; challenge: Challenge }) {
+      setRoundResult(null)
       setRoom((prev) => {
         if (!prev) return prev
         const status = prev.status === "in_progress" ? prev.status : "in_progress" as const
@@ -90,6 +93,10 @@ export function RoomProvider({
         return { ...prev, status, currentRound: round, rounds }
       })
       setChallenge(challenge)
+    }
+
+    function handleEndRound(result: RoundResult) {
+      setRoundResult(result)
     }
 
     function handlePlayerSubmitted({ playerId }: { playerId: string }) {
@@ -111,19 +118,21 @@ export function RoomProvider({
     socket.on("player-left", handlePlayerLeft)
     socket.on("start-round", handleStartRound)
     socket.on("player-submitted", handlePlayerSubmitted)
+    socket.on("end-round", handleEndRound)
     return () => {
       socket.off("player-joined", handlePlayerJoined)
       socket.off("room-joined", handleRoomJoined)
       socket.off("player-left", handlePlayerLeft)
       socket.off("start-round", handleStartRound)
       socket.off("player-submitted", handlePlayerSubmitted)
+      socket.off("end-round", handleEndRound)
     }
   }, [])
 
   if (error) throw error
 
   return (
-    <RoomContext.Provider value={{ room, player, challenge, isLoading }}>
+    <RoomContext.Provider value={{ room, player, challenge, roundResult, isLoading }}>
       {children}
     </RoomContext.Provider>
   )
