@@ -1,9 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Editor from "@monaco-editor/react"
 import { Button } from "@/components/ui/button"
-import { Play, Send, Loader2 } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Play, Send, Loader2, Clock } from "lucide-react"
 import { ArenaLanguageSelector } from "./arena-language-selector"
 import { TestResultsPanel } from "./test-results-panel"
 import { SubmissionStatusBar } from "./submission-status-bar"
@@ -33,6 +38,13 @@ export function CodeEditorPanel() {
   const [isRunning, setIsRunning] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [testResults, setTestResults] = useState<TestCaseResult[] | null>(null)
+  const [cooldownSeconds, setCooldownSeconds] = useState(0)
+
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return
+    const timer = setTimeout(() => setCooldownSeconds((s) => s - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [cooldownSeconds])
 
   function handleLanguageChange(lang: string) {
     setLanguage(lang)
@@ -40,7 +52,7 @@ export function CodeEditorPanel() {
   }
 
   async function handleRunTests() {
-    if (!challenge || isRunning) return
+    if (!challenge || isRunning || cooldownSeconds > 0) return
     setIsRunning(true)
     try {
       const { data } = await submissions.create(
@@ -48,6 +60,14 @@ export function CodeEditorPanel() {
         "test",
       )
       setTestResults(data.testCases)
+    } catch (error) {
+      const response = (error as { response?: { status?: number; headers?: Record<string, string> } }).response
+      if (response?.status === 429) {
+        const retryAfter = Number(response.headers?.["retry-after"]) || 2
+        setCooldownSeconds(retryAfter)
+      } else {
+        throw error
+      }
     } finally {
       setIsRunning(false)
     }
@@ -70,10 +90,29 @@ export function CodeEditorPanel() {
       <div className="flex items-center justify-between border-b border-border/50 px-3 py-2">
         <ArenaLanguageSelector value={language} onLanguageChange={handleLanguageChange} />
         <div className="flex items-center gap-2 ml-auto">
-          <Button variant="outline" size="sm" onClick={handleRunTests} disabled={isRunning || !challenge}>
-            {isRunning ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
-            Run Tests
-          </Button>
+          <Tooltip open={cooldownSeconds > 0 ? true : false}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRunTests}
+                disabled={isRunning || !challenge || cooldownSeconds > 0}
+                aria-label={cooldownSeconds > 0 ? `Rate limited, retry in ${cooldownSeconds} seconds` : "Run tests"}
+              >
+                {isRunning ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : cooldownSeconds > 0 ? (
+                  <Clock className="size-3.5" />
+                ) : (
+                  <Play className="size-3.5" />
+                )}
+                {cooldownSeconds > 0 ? `Wait ${cooldownSeconds}s` : "Run Tests"}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              Slow down — too many runs. Try again in {cooldownSeconds}s.
+            </TooltipContent>
+          </Tooltip>
           <Button size="sm" onClick={handleSubmit} disabled={isSubmitting || !challenge}>
             {isSubmitting ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
             Submit

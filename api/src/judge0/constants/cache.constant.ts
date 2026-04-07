@@ -1,0 +1,2 @@
+export const SUBMISSION_CACHE_MAX = 10_000;
+export const SUBMISSION_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
