@@ -7,6 +7,7 @@ import { ArrowLeft, AlertCircle, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LogoIcon } from "@/components/ui/logo"
 import { RoomError } from "@/lib/contexts/room/room-context"
+import { ReportBugButton } from "./_components/report-bug-button"
 
 export default function RoomErrorPage({ error }: { error: Error }) {
   const isRoomError = error instanceof RoomError
@@ -63,6 +64,21 @@ export default function RoomErrorPage({ error }: { error: Error }) {
             </Link>
           </Button>
         </div>
+
+        {!isRoomError && (
+          <ReportBugButton
+            source="room_error_page"
+            triggerLabel="Report this error"
+            tags={{
+              error_name: error.name,
+            }}
+            extraContext={{
+              errorName: error.name,
+              errorMessage: error.message,
+              errorStack: error.stack,
+            }}
+          />
+        )}
       </div>
     </div>
   )

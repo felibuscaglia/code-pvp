@@ -4,7 +4,6 @@ import { useState } from "react"
 import * as Sentry from "@sentry/nextjs"
 import { Bug, Check } from "lucide-react"
 
-import { useRoom } from "@/lib/contexts/room"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,8 +17,23 @@ import {
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-export function ReportBugButton() {
-  const { room, player, challenge } = useRoom()
+interface ReportBugButtonProps {
+  /** Identifies where the report came from. Sent as the `report_source` Sentry tag. */
+  source: string
+  /** Extra Sentry tags merged onto the captured message. */
+  tags?: Record<string, string | number | undefined>
+  /** Extra fields merged into the `report` Sentry context. */
+  extraContext?: Record<string, unknown>
+  /** Optional label override for the trigger button. Defaults to "Report". */
+  triggerLabel?: string
+}
+
+export function ReportBugButton({
+  source,
+  tags,
+  extraContext,
+  triggerLabel = "Report",
+}: ReportBugButtonProps) {
   const [open, setOpen] = useState(false)
   const [description, setDescription] = useState("")
   const [submitted, setSubmitted] = useState(false)
@@ -30,20 +44,13 @@ export function ReportBugButton() {
     Sentry.captureMessage("User bug report", {
       level: "warning",
       tags: {
-        report_source: "room_bug_button",
-        room_status: room?.status,
-        room_id: room?.id,
-        challenge_id: challenge?.id,
+        report_source: source,
+        ...tags,
       },
       contexts: {
         report: {
           description,
-          roomId: room?.id,
-          roomStatus: room?.status,
-          currentRound: room?.currentRound,
-          roundCount: room?.roundCount,
-          challengeId: challenge?.id,
-          playerId: player?.id,
+          ...extraContext,
         },
       },
     })
@@ -61,14 +68,14 @@ export function ReportBugButton() {
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" className="gap-1.5">
           <Bug className="size-3.5" />
-          <span className="hidden sm:inline">Report</span>
+          <span className="hidden sm:inline">{triggerLabel}</span>
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Report a bug</DialogTitle>
           <DialogDescription>
-            Tell us what went wrong. We&apos;ll attach the room and round context automatically.
+            Tell us what went wrong. We&apos;ll attach diagnostic context automatically.
           </DialogDescription>
         </DialogHeader>
 

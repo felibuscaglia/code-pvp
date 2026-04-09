@@ -18,7 +18,7 @@ const difficultyColor: Record<string, string> = {
 }
 
 export function RoomInfoSummary({ roomId }: RoomInfoSummaryProps) {
-  const { room, isLoading } = useRoom()
+  const { room, player, challenge, isLoading } = useRoom()
 
   if (isLoading) {
     return (
@@ -63,7 +63,22 @@ export function RoomInfoSummary({ roomId }: RoomInfoSummaryProps) {
 
       <div className="ml-auto flex items-center gap-2">
         {room.status === "in_progress" && <RoomPlayers />}
-        <ReportBugButton />
+        <ReportBugButton
+          source="room_bug_button"
+          tags={{
+            room_status: room.status,
+            room_id: room.id,
+            challenge_id: challenge?.id,
+          }}
+          extraContext={{
+            roomId: room.id,
+            roomStatus: room.status,
+            currentRound: room.currentRound,
+            roundCount: room.roundCount,
+            challengeId: challenge?.id,
+            playerId: player?.id,
+          }}
+        />
       </div>
     </div>
   )

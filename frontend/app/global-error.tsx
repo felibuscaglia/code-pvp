@@ -9,6 +9,7 @@ import "./globals.css"
 import { Button } from "@/components/ui/button"
 import { LogoIcon } from "@/components/ui/logo"
 import { cn } from "@/lib/utils"
+import { ReportBugButton } from "./(rooms)/room/[roomId]/_components/report-bug-button"
 
 const geistMonoHeading = Geist_Mono({ subsets: ["latin"], variable: "--font-heading" })
 const fontSans = Geist({ subsets: ["latin"], variable: "--font-sans" })
@@ -76,6 +77,21 @@ export default function GlobalError({
                 Try again
               </Button>
             </div>
+
+            <ReportBugButton
+              source="global_error_page"
+              triggerLabel="Report this error"
+              tags={{
+                error_name: error.name,
+                error_digest: error.digest,
+              }}
+              extraContext={{
+                errorName: error.name,
+                errorMessage: error.message,
+                errorDigest: error.digest,
+                errorStack: error.stack,
+              }}
+            />
           </div>
         </div>
       </body>
