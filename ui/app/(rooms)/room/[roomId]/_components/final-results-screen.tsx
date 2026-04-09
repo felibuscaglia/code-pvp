@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useEffect, useMemo, useRef } from "react"
 import confetti from "canvas-confetti"
-import { Crown, Ghost, Home, Medal, Trophy } from "lucide-react"
+import { AlertTriangle, Crown, Ghost, Home, Medal, Trophy } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -103,6 +103,10 @@ export function FinalResultsScreen() {
 
   const hasWinner = gameResult.winner !== null
   const podiumPlayers = stats.slice(0, 3)
+  const erroredRounds = roundHistory.reduce<number[]>((acc, round, index) => {
+    if (round.error) acc.push(index + 1)
+    return acc
+  }, [])
 
   return (
     <div className="flex flex-1 flex-col items-center overflow-y-auto px-4 py-10">
@@ -113,6 +117,22 @@ export function FinalResultsScreen() {
         </div>
         <h1 className="text-3xl font-bold text-foreground">{room.name}</h1>
       </div>
+
+      {erroredRounds.length > 0 && (
+        <div className="mt-6 flex w-full max-w-4xl animate-fade-in-up items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-destructive">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm font-semibold">
+              {erroredRounds.length === 1
+                ? `Round ${erroredRounds[0]} hit a scoring error`
+                : `Rounds ${erroredRounds.join(", ")} hit scoring errors`}
+            </span>
+            <span className="text-xs text-destructive/80">
+              The standings below may be incomplete. This was an issue on our end, not with any submission.
+            </span>
+          </div>
+        </div>
+      )}
 
       {!hasWinner && (
         <div className="mb-8 mt-8 flex animate-fade-in-up flex-col items-center gap-3 [animation-delay:150ms]">

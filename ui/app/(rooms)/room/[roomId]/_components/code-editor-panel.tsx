@@ -59,11 +59,15 @@ export function CodeEditorPanel() {
     try {
       const { data } = await submissions.create(
         { challengeId: challenge.id, language, code, roomId },
-        "test",
+        "test"
       )
       setTestResults(data.testCases)
     } catch (error) {
-      const response = (error as { response?: { status?: number; headers?: Record<string, string> } }).response
+      const response = (
+        error as {
+          response?: { status?: number; headers?: Record<string, string> }
+        }
+      ).response
       if (response?.status === 429) {
         const retryAfter = Number(response.headers?.["retry-after"]) || 2
         setCooldownSeconds(retryAfter)
@@ -90,16 +94,25 @@ export function CodeEditorPanel() {
     <div className="flex h-full flex-col">
       {/* Toolbar */}
       <div className="flex items-center justify-between border-b border-border/50 px-3 py-2">
-        <ArenaLanguageSelector value={language} onLanguageChange={handleLanguageChange} />
-        <div className="flex items-center gap-2 ml-auto">
-          <Tooltip open={cooldownSeconds > 0 ? true : false}>
+        <ArenaLanguageSelector
+          value={language}
+          onLanguageChange={handleLanguageChange}
+        />
+        <div className="ml-auto flex items-center gap-2">
+          <Tooltip
+            open={cooldownSeconds > 0 || runError !== null ? true : false}
+          >
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleRunTests}
                 disabled={isRunning || !challenge || cooldownSeconds > 0}
-                aria-label={cooldownSeconds > 0 ? `Rate limited, retry in ${cooldownSeconds} seconds` : "Run tests"}
+                aria-label={
+                  cooldownSeconds > 0
+                    ? `Rate limited, retry in ${cooldownSeconds} seconds`
+                    : "Run tests"
+                }
               >
                 {isRunning ? (
                   <Loader2 className="size-3.5 animate-spin" />
@@ -112,11 +125,20 @@ export function CodeEditorPanel() {
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              Slow down — too many runs. Try again in {cooldownSeconds}s.
+              {runError ??
+                `Slow down — too many runs. Try again in ${cooldownSeconds}s.`}
             </TooltipContent>
           </Tooltip>
-          <Button size="sm" onClick={handleSubmit} disabled={isSubmitting || !challenge}>
-            {isSubmitting ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+          <Button
+            size="sm"
+            onClick={handleSubmit}
+            disabled={isSubmitting || !challenge}
+          >
+            {isSubmitting ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Send className="size-3.5" />
+            )}
             Submit
           </Button>
         </div>
@@ -150,7 +172,7 @@ export function CodeEditorPanel() {
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={35} minSize={15}>
-          <TestResultsPanel results={testResults} isRunning={isRunning} error={runError} />
+          <TestResultsPanel results={testResults} isRunning={isRunning} />
         </ResizablePanel>
       </ResizablePanelGroup>
 

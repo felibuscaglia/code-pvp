@@ -5,4 +5,5 @@ export interface ScoreBreakdown {
   speedScore: number;
   lengthScore: number;
   total: number;
+  error?: boolean;
 }

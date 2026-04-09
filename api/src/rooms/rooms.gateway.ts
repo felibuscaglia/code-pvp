@@ -188,6 +188,22 @@ export class RoomsGateway implements OnGatewayDisconnect {
           roundTime: room.roundTime,
         });
         return { result, score };
+      })
+      .catch((err) => {
+        this.logger.error(
+          `submit failed for ${client.id} in room ${payload.roomId}`,
+          err,
+        );
+        const score: ScoreBreakdown = {
+          passRate: 0,
+          timeScore: 0,
+          memoryScore: 0,
+          speedScore: 0,
+          lengthScore: 0,
+          total: 0,
+          error: true,
+        };
+        return { score };
       });
 
     roundState.scores.set(

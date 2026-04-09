@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { LRUCache } from 'lru-cache';
 import { Judge0Response } from './interfaces';
 import {
@@ -8,12 +7,10 @@ import {
   SUBMISSION_CACHE_TTL_MS,
 } from './constants';
 import { buildCacheKey } from './helpers';
+import { Judge0Client } from './judge0.client';
 
 @Injectable()
 export class Judge0Service {
-  private readonly JUDGE0_HOST = 'judge0-ce.p.rapidapi.com';
-  private readonly JUDGE0_API_URL = `https://${this.JUDGE0_HOST}`;
-  private readonly apiKey: string;
   private readonly logger = new Logger(Judge0Service.name);
 
   private readonly cache = new LRUCache<string, Judge0Response>({
@@ -21,9 +18,7 @@ export class Judge0Service {
     ttl: SUBMISSION_CACHE_TTL_MS,
   });
 
-  constructor(private readonly configService: ConfigService) {
-    this.apiKey = this.configService.getOrThrow<string>('RAPIDAPI_KEY');
-  }
+  constructor(private readonly judge0Client: Judge0Client) {}
 
   async createSubmission(
     sourceCode: string,
@@ -36,27 +31,13 @@ export class Judge0Service {
       return cached;
     }
 
-    const languageId = LANGUAGE_IDS[language];
+    const result = await this.judge0Client.createSubmission({
+      source_code: sourceCode,
+      language_id: LANGUAGE_IDS[language],
+      cpu_time_limit: 5,
+      memory_limit: 128000,
+    });
 
-    const response = await fetch(
-      `${this.JUDGE0_API_URL}/submissions?base64_encoded=false&wait=true`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-RapidAPI-Key': this.apiKey,
-          'X-RapidAPI-Host': this.JUDGE0_HOST,
-        },
-        body: JSON.stringify({
-          source_code: sourceCode,
-          language_id: languageId,
-          cpu_time_limit: 5,
-          memory_limit: 128000,
-        }),
-      },
-    );
-
-    const result = (await response.json()) as Judge0Response;
     this.cache.set(cacheKey, result);
     return result;
   }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import confetti from "canvas-confetti"
-import { Trophy, CheckCircle, Cpu, Gauge, HardDrive, FileCode, Ghost } from "lucide-react"
+import { Trophy, CheckCircle, Cpu, Gauge, HardDrive, FileCode, Ghost, AlertTriangle } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Table,
@@ -75,6 +75,17 @@ export function RoundResultsScreen() {
   return (
     <div className="flex flex-1 overflow-hidden">
       <div className="flex flex-1 flex-col items-center overflow-y-auto px-4 py-8">
+      {roundResult.error && (
+        <div className="mb-6 flex w-full max-w-4xl animate-fade-in-up items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-destructive">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm font-semibold">Something went wrong scoring this round</span>
+            <span className="text-xs text-destructive/80">
+              The results below may be incomplete. This was an issue on our end, not with your submission.
+            </span>
+          </div>
+        </div>
+      )}
       {/* Winner highlight */}
       <div className="mb-8 flex animate-fade-in-up flex-col items-center gap-3">
         {winner ? (

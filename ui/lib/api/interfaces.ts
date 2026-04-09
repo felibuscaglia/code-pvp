@@ -101,6 +101,7 @@ export interface ScoreBreakdown {
 export interface RoundResult {
   scores: Record<string, ScoreBreakdown>
   winner: string | null
+  error?: boolean
 }
 
 export interface GameStanding {
