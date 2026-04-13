@@ -1,8 +1,24 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/ui/logo"
 import { RoomConfigForm } from "./_components/room-config-form"
+
+export const metadata: Metadata = {
+  title: "Create a Room",
+  description:
+    "Set up a real-time coding battle in seconds. Pick difficulty, language, rounds, and invite friends to compete head-to-head.",
+  openGraph: {
+    title: "Create a Room | CodePvP",
+    description:
+      "Set up a real-time coding battle in seconds. Pick difficulty, language, rounds, and invite friends to compete.",
+    url: "/create",
+  },
+  alternates: {
+    canonical: "/create",
+  },
+}
 
 export default function CreateRoomPage() {
   return (

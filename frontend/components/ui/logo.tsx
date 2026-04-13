@@ -47,7 +47,7 @@ function Logo({
     >
       <LogoIcon className={iconClassName} />
       <span className="font-heading text-lg font-bold tracking-tight">
-        Code<span className="text-primary">Arena</span>
+        Code<span className="text-primary">PvP</span>
       </span>
     </div>
   )

@@ -1,8 +1,24 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/ui/logo"
 import { BrowseRooms } from "./_components/browse-rooms"
+
+export const metadata: Metadata = {
+  title: "Browse Public Rooms",
+  description:
+    "Find and join open coding battles. Compete against developers in real-time LeetCode-style challenges — no invite needed.",
+  openGraph: {
+    title: "Browse Public Rooms | CodePvP",
+    description:
+      "Find and join open coding battles. Compete against developers in real-time LeetCode-style challenges.",
+    url: "/browse",
+  },
+  alternates: {
+    canonical: "/browse",
+  },
+}
 
 export default function BrowseRoomsPage() {
   return (

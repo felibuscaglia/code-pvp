@@ -14,7 +14,7 @@ import { HeroActions } from "./_components/hero-actions"
 import { BattlePreview } from "./_components/battle-preview"
 
 export const metadata: Metadata = {
-  title: "CodeArena — Real-Time Competitive Coding Battles",
+  title: "CodePvP — Real-Time Competitive Coding Battles",
   description:
     "Race head-to-head in real-time coding challenges. Create a room, invite friends, and compete on correctness, performance, and code quality.",
   keywords: [
@@ -23,13 +23,20 @@ export const metadata: Metadata = {
     "real-time coding",
     "code challenges",
     "programming competition",
-    "coding arena",
+    "code pvp",
+    "codepvp",
+    "leetcode multiplayer",
+    "coding competition online",
+    "competitive programming practice",
   ],
   openGraph: {
-    title: "CodeArena — Real-Time Competitive Coding Battles",
+    title: "CodePvP — Real-Time Competitive Coding Battles",
     description:
       "Race head-to-head in real-time coding challenges. Create rooms, invite friends, and prove you write the best code under pressure.",
-    type: "website",
+    url: "/",
+  },
+  alternates: {
+    canonical: "/",
   },
 }
 
@@ -103,9 +110,39 @@ const highlights = [
   "1–10 rounds",
 ]
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      name: "CodePvP",
+      url: "https://codepvp.com",
+      description:
+        "Real-time competitive coding platform. Race head-to-head in LeetCode-style challenges scored on correctness, speed, and code quality.",
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "CodePvP",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Web",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      description:
+        "A multiplayer coding battle platform where developers compete in real-time on algorithm challenges.",
+    },
+  ],
+}
+
 export default function LandingPage() {
   return (
     <div className="flex min-h-svh flex-col bg-grid">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Navigation */}
       <header className="fixed top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-lg">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
@@ -336,7 +373,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <Logo className="opacity-60" />
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} CodeArena
+            &copy; {new Date().getFullYear()} CodePvP
           </p>
         </div>
       </footer>
