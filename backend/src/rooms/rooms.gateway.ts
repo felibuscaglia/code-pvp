@@ -52,20 +52,6 @@ export class RoomsGateway implements OnGatewayDisconnect {
 
     if (room.status !== RoomStatus.IN_PROGRESS) return;
 
-    if (room.players.size === 1 && room.currentRound < room.roundCount) {
-      const currentRoundState = room.rounds[room.currentRound - 1];
-      if (currentRoundState?.timeout) {
-        clearTimeout(currentRoundState.timeout);
-        currentRoundState.timeout = undefined;
-      }
-      clearTimeout(room.nextRoundTimeout);
-      this.logger.warn(
-        `Ending game early room=${roomId} reason=insufficient-players`,
-      );
-      this.emitGameEnded(roomId);
-      return;
-    }
-
     const roundState = room.rounds[room.currentRound - 1];
     if (!roundState || roundState.ended) return;
 
@@ -136,7 +122,7 @@ export class RoomsGateway implements OnGatewayDisconnect {
     const room = this.roomsService.findById(roomId);
     if (!room) return;
 
-    if (room.players.size < 2) return;
+    if (room.players.size < 1) return;
 
     const challengeId = room.challenges[room.currentRound - 1];
     const challenge = await this.challengesService.getChallengeForRound(challengeId);

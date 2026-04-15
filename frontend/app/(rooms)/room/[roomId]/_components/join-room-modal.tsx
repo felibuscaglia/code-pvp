@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowRight } from "lucide-react"
+import { useEffect, useState } from "react"
+import { ArrowRight, Loader2 } from "lucide-react"
 import { socket } from "@/lib/api/socket"
 import { useRoom } from "@/lib/contexts/room"
 import {
@@ -32,12 +32,18 @@ interface JoinRoomModalProps {
 }
 
 export function JoinRoomModal({ roomId }: JoinRoomModalProps) {
-  const { room } = useRoom()
+  const { room, player } = useRoom()
   const [displayName, setDisplayName] = useState("")
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null)
+  const [isJoining, setIsJoining] = useState(false)
   const [open, setOpen] = useState(true)
 
-  const canJoin = displayName.trim().length > 0 && selectedAvatar !== null
+  const canJoin =
+    displayName.trim().length > 0 && selectedAvatar !== null && !isJoining
+
+  useEffect(() => {
+    if (player) setOpen(false)
+  }, [player])
 
   function handleJoin() {
     if (!canJoin) return
@@ -45,6 +51,7 @@ export function JoinRoomModal({ roomId }: JoinRoomModalProps) {
     const avatar = AVATARS.find((a) => a.id === selectedAvatar)!.emoji
     const hostToken = sessionStorage.getItem(`hostToken:${roomId}`)
 
+    setIsJoining(true)
     socket.connect()
     socket.emit("join-room", {
       roomId,
@@ -52,8 +59,6 @@ export function JoinRoomModal({ roomId }: JoinRoomModalProps) {
       avatar,
       ...(hostToken && { hostToken }),
     })
-
-    setOpen(false)
   }
 
   return (
@@ -124,8 +129,17 @@ export function JoinRoomModal({ roomId }: JoinRoomModalProps) {
             onClick={handleJoin}
             className={`w-full ${canJoin ? "glow-primary" : ""}`}
           >
-            Join Battle
-            <ArrowRight data-icon="inline-end" />
+            {isJoining ? (
+              <>
+                Entering the arena
+                <Loader2 data-icon="inline-end" className="animate-spin" />
+              </>
+            ) : (
+              <>
+                Join Battle
+                <ArrowRight data-icon="inline-end" />
+              </>
+            )}
           </Button>
         </div>
       </DialogContent>

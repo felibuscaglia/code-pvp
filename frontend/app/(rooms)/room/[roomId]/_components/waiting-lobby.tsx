@@ -18,7 +18,7 @@ export function WaitingLobby({ roomId }: WaitingLobbyProps) {
   const players = Array.from(room.players.values())
   const totalSlots = room.maxPlayers ?? 8
   const emptySlots = Math.max(0, totalSlots - players.length)
-  const hasEnoughPlayers = players.length >= 2
+  const hasEnoughPlayers = players.length >= 1
 
   return (
     <div className="flex flex-1 overflow-hidden">
@@ -79,11 +79,6 @@ export function WaitingLobby({ roomId }: WaitingLobbyProps) {
               <StartGameButton roomId={roomId} disabled={!hasEnoughPlayers} />
             )}
           </div>
-          {player?.isHost && !hasEnoughPlayers && (
-            <p className="text-xs text-muted-foreground">
-              At least 2 players needed to start the battle
-            </p>
-          )}
         </div>
       </div>
 
